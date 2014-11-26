@@ -70,6 +70,41 @@ function returnJobStatus(job_id) {
 
 //----------------------------------------------------------------------------//
 
+// Define a function to return the statuses, creation times, and running times 
+// of all jobs.
+
+function allJobs() {
+
+    // Declare some variables, including the child process.
+
+    var spawn = require('child_process').spawn,
+        qstat = spawn('qstat');
+        header = [
+                    ["Job ID         ",
+                     "Status         ",
+                     "Creation Time             ",
+                     "Running Time   "].join("\t"),
+                    ["---------------",
+                     "-----------",
+                     "--------------------------",
+                     "---------------"].join("\t")
+                    ].join("\n");
+    console.log(header);
+    
+    qstat.stdout.on('data', function (data) {
+        var job_data = data
+                      .toString()
+                      .split("\n");
+            
+        for ( i=2; i < job_data.length-1; i++ ) {
+            var job_id = job_data[i].split(" ")[0];
+            returnJobInfo(job_id);
+        };
+    });
+};
+
+//----------------------------------------------------------------------------//
+
 // Define a function to return a job's status, creation time, and running 
 // time.
 
@@ -151,48 +186,13 @@ function returnJobInfo(job_id) {
 
 //----------------------------------------------------------------------------//
 
-// Define a function to return the statuses, creation times, and running times 
-// of all jobs.
-
-function allJobs() {
-
-    // Declare some variables, including the child process.
-
-    var spawn = require('child_process').spawn,
-        qstat = spawn('qstat');
-        header = [
-                    ["Job ID         ",
-                     "Status         ",
-                     "Creation Time             ",
-                     "Running Time   "].join("\t"),
-                    ["---------------",
-                     "-----------",
-                     "--------------------------",
-                     "---------------"].join("\t")
-                    ].join("\n");
-    console.log(header);
-    
-    qstat.stdout.on('data', function (data) {
-        var job_data = data
-                      .toString()
-                      .split("\n");
-            
-        for ( i=2; i < job_data.length-1; i++ ) {
-            var job_id = job_data[i].split(" ")[0];
-            returnJobInfo(job_id);
-        };
-    });
-};
-
-//----------------------------------------------------------------------------//
-
 // Watch a job whose ID was given as an argument.
 
 //watchJob(process.argv[2]);
 
 // Return the status, creation time, and running time of all jobs.
 
-//allJobs()
+allJobs()
 
 // Export.
 
